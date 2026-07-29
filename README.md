@@ -86,6 +86,14 @@ Now you have to keep track of:
 
 ## Installation
 
+### Automatic Installation
+
+Install the latest pre-compiled binary for Linux or macOS automatically using the setup utility:
+
+```bash
+curl -fsSL https://githubusercontent.com | sh
+```
+
 ### From source
 
 ```sh
@@ -133,10 +141,32 @@ If you installed using `go install`, the binary is normally located in `$(go env
 
 ### Inspect your projects
 
-See the labels used across all projects in under a comon parent directory:
+Single project
 
 ```sh
-daplabel survey --recusrive ~/compose-projects/
+daplabel survey /opt/dapps/frigate/
+```
+
+Output:
+
+```text
+Base Folder: /opt/dapps/frigate/
+
+frigate
+compose.yml
+   frigate
+     [inline]
+       someother.label=somevalue
+     [file: frigate.labels]
+       diun.enable=true
+       diun.metadata.app=frigate
+Summary: 1 project, 1 service; Labels: 3 total, 1 inline, 2 in 1 files
+```
+
+See the labels used across all projects in under a common parent directory:
+
+```sh
+daplabel survey --recursive  /opt/dapps
 ```
 
 ### Add a label
