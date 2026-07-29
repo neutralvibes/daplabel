@@ -34,7 +34,8 @@ info "Detected platform: ${OS}_${ARCH}"
 
 # 3. Securely Fetch Latest Release Tag (Bypasses API rate limits)
 info "Resolving latest release version..."
-LATEST_TAG=$(curl -sS -I "https://github.com{REPO}/releases/latest" | grep -i '^location:' | sed -E 's/.*\/tag\/([^[:space:]\r\n]+).*/\1/')
+LATEST_TAG=$(curl -sS -I "https://github.com/${REPO}/releases/latest" | tr -d '\r' | grep -i '^location:' | sed -E 's/.*\/tag\/([^[:space:]]+).*/\1/')
+TAG_NO_V="${LATEST_TAG#v}"
 
 if [ -z "${LATEST_TAG}" ]; then
     error "Failed to resolve the latest version tag from GitHub."
@@ -48,8 +49,9 @@ case "${OS}" in
     *)       EXT="tar.gz" ;;
 esac
 
-TARBALL_NAME="${BINARY_NAME}_${OS}_${ARCH}.${EXT}"
-DOWNLOAD_URL="https://github.com{REPO}/releases/download/${LATEST_TAG}/${TARBALL_NAME}"
+TARBALL_NAME="${BINARY_NAME}_${TAG_NO_V}_${OS}_${ARCH}.${EXT}"
+DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${TARBALL_NAME}"
+info "Download url: $DOWNLOAD_URL"
 
 # 5. Safe Temporary Extraction Environment
 TMP_DIR=$(mktemp -d)
@@ -71,21 +73,20 @@ fi
 # 6. Smart Fallback Path Selection (No forced sudo crashes)
 # Default to /usr/local/bin, fallback safely to $HOME/.local/bin if unprivileged
 INSTALL_DIR="/usr/local/bin"
-USE_SUDO=false
 
 if [ ! -w "${INSTALL_DIR}" ]; then
-    if command -v sudo >/dev/null 2>&1 && [ -t 0 ]; then
-        USE_SUDO=true
-    else
-        INSTALL_DIR="${HOME}/.local/bin"
-        info "/usr/local/bin is not writable and sudo is unavailable. Falling back to ${INSTALL_DIR}"
-        mkdir -p "${INSTALL_DIR}"
-    fi
+    INSTALL_DIR="${HOME}/.local/bin"
+    info "/usr/local/bin is not writable and sudo is unavailable. Falling back to ${INSTALL_DIR}"
+    mkdir -p "${INSTALL_DIR}"
+    USE_SUDO=false
+else
+    USE_SUDO=true
 fi
 
 info "Installing ${BINARY_NAME} to ${INSTALL_DIR}..."
+
 if [ "${USE_SUDO}" = true ]; then
-    sudo mv "${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
+    mv "${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
     [ "${OS}" != "windows" ] && sudo chmod +x "${INSTALL_DIR}/${BINARY_NAME}"
 else
     mv "${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"

@@ -91,7 +91,7 @@ Now you have to keep track of:
 Install the latest pre-compiled binary for Linux or macOS automatically using the setup utility:
 
 ```bash
-curl -fsSL https://githubusercontent.com | sh
+curl -fsSL https://raw.githubusercontent.com/neutralvibes/daplabel/main/install.sh | sudo sh
 ```
 
 ### From source
