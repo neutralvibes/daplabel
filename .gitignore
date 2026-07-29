@@ -1,0 +1,29 @@
+daplabel
+.private
+.private-config
+.vscode
+.clineignore
+.clinerules
+
+/dist/
+*.exe
+*.test
+*.out
+.DS_Store
+# Binaries and Architecture Outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+out/
+# Go Tooling and Cache (Massive text files Cline must ignore)
+.golangci-lint.cache/
+.cache/
+
+# Crash dumps and testing coverage artifacts
+*.test
+*.prof
+coverage.out

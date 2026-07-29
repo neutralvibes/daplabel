@@ -1,0 +1,31 @@
+name: Test Suite
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Verify docker compose is available
+        run: docker compose version
+
+      - name: Download dependencies
+        run: go mod download
+
+      # REPLACED: Manual gofmt step removed. golangci-lint handles this below.
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+
+      - name: Test (with race detector)
+        run: go test -race ./...

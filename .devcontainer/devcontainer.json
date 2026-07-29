@@ -1,0 +1,70 @@
+{
+  "name": "daplabel (Go)",
+  // Pinned, not floating on "latest" — see DECISIONS.md Decision 27
+  // (Go version pinned in go.mod) and Decision 30 (pinned CI runner).
+  // Update this and go.mod together, deliberately, when bumping Go versions.
+  "image": "mcr.microsoft.com/devcontainers/go:1.26-bookworm",
+  "initializeCommand": "mkdir -p ${localWorkspaceFolder}/.private-config/.vscode-server",
+  "runArgs": [
+    "--name",
+    "${localWorkspaceFolderBasename}_devcontainer"
+  ],
+  "containerEnv": {
+    "GOTOOLCHAIN": "auto"
+  },
+  "remoteEnv": {
+    "GOTOOLCHAIN": "auto"
+  },
+  "features": {
+    // docker compose is daplabel's one remaining external runtime
+    // dependency (DECISIONS.md Decision 15/30) — needed inside the
+    // devcontainer itself so `go test ./...` can exercise real Compose
+    // validation, not a mock (Decision 30 deliberately has no interface
+    // here).
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": false
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "gpgSign": true
+    }
+  },
+  // golangci-lint isn't an official devcontainer feature; installed
+  // directly via its own install script (Engineering Principles §3.2).
+  // go mod tidy resolves go.mod's declared dependencies (e.g. cobra,
+  // DECISIONS.md Decision 29) against the real module proxy — this
+  // requires normal, unrestricted network access, unlike the sandbox
+  // this skeleton was drafted in.
+  // "postCreateCommand": "curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.12.2 && go mod tidy",
+  "postCreateCommand": "curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.12.2 && GOTOOLCHAIN=auto go mod tidy",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "ms-azuretools.vscode-docker",
+        "saoudrizwan.claude-dev"
+      ],
+      "settings": {
+        "go.lintTool": "golangci-lint",
+        "go.useLanguageServer": true,
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind",
+    "source=/home/del/.gnupg,target=/home/vscode/.gnupg,type=bind",
+    "source=/home/del/bin,target=/home/vscode/bin,type=bind",
+    // Persists Cline's core data and chat history files
+    "source=/home/del/projects/.cline,target=/home/vscode/.cline,type=bind",
+    // Persists VS Code extension configurations and state
+    "source=${localWorkspaceFolder}/.private-config/.vscode-server,target=/home/vscode/.vscode-server,type=bind",
+    // Persists the Go module and toolchain cache across container rebuilds
+    "source=daplabel-go-cache,target=/go,type=volume"
+  ],
+  "remoteUser": "vscode"
+}

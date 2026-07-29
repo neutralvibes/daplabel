@@ -1,0 +1,75 @@
+version: 2
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/daplabel
+
+    goos:
+      - linux
+      - windows
+      - darwin
+
+    goarch:
+      - amd64
+      - arm64
+      - arm
+
+    goarm:
+      - "7"
+
+    ignore:
+      - goos: windows
+        goarch: arm64
+      - goos: windows
+        goarch: arm
+
+archives:
+  - name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+      {{- with .Arm }}v{{ . }}{{ end }}
+
+    formats:
+      - tar.gz
+
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+changelog:
+  use: git
+  sort: asc
+
+  groups:
+    - title: "New Features"
+      regexp: '^.*?feat(\([[:word:]-]+\))?!?:.+$'
+      order: 0
+
+    - title: "Bug Fixes"
+      regexp: '^.*?fix(\([[:word:]-]+\))?!?:.+$'
+      order: 1
+
+    - title: "Performance"
+      regexp: '^.*?perf(\([[:word:]-]+\))?!?:.+$'
+      order: 2
+
+    - title: "Documentation"
+      regexp: '^.*?docs(\([[:word:]-]+\))?!?:.+$'
+      order: 3
+
+  filters:
+    exclude:
+      - '^test(\([[:word:]-]+\))?!?:'
+      - '^ci(\([[:word:]-]+\))?!?:'
+      - '^chore(\([[:word:]-]+\))?!?:'
+      - '^wip(\([[:word:]-]+\))?!?:'
+      - '^Merge pull request'
+      - '^Merge branch'
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  draft: true
