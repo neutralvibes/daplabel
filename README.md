@@ -163,7 +163,7 @@ compose.yml
 Summary: 1 project, 1 service; Labels: 3 total, 1 inline, 2 in 1 files
 ```
 
-See the labels used across all projects in under a common parent directory:
+See the labels used across all projects under a common parent directory:
 
 ```sh
 daplabel survey --recursive  /opt/dapps
