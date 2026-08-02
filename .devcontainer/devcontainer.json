@@ -57,10 +57,10 @@
   },
   "mounts": [
     "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind",
-    "source=/home/del/.gnupg,target=/home/vscode/.gnupg,type=bind",
-    "source=/home/del/bin,target=/home/vscode/bin,type=bind",
+    "source=${localEnv:HOME}/.gnupg,target=/home/vscode/.gnupg,type=bind",
+    "source=${localEnv:HOME}/bin,target=/home/vscode/bin,type=bind",
     // Persists Cline's core data and chat history files
-    "source=/home/del/projects/.cline,target=/home/vscode/.cline,type=bind",
+    "source=${localEnv:HOME}/projects/.cline,target=/home/vscode/.cline,type=bind",
     // Persists VS Code extension configurations and state
     "source=${localWorkspaceFolder}/.private-config/.vscode-server,target=/home/vscode/.vscode-server,type=bind",
     // Persists the Go module and toolchain cache across container rebuilds
